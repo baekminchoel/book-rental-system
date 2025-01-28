@@ -7,6 +7,7 @@ import com.example.bookrentalsystem.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +27,7 @@ public class AuthController {
 
     // 회원가입 처리
     @PostMapping("/register")
+    @Transactional
     public String register(@ModelAttribute SignupRequestDto request) {
 
         // 1. 비밀번호 해싱
