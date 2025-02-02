@@ -4,10 +4,12 @@ import com.example.bookrentalsystem.dto.SignupRequestDto;
 import com.example.bookrentalsystem.entity.Member;
 import com.example.bookrentalsystem.entity.Role;
 import com.example.bookrentalsystem.repository.MemberRepository;
+import com.example.bookrentalsystem.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +21,12 @@ public class AuthController {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
 
+    // 로그인 페이지
+    @GetMapping("/login")
+    public String loginForm() {
+        return "login";
+    }
+
     // 회원가입 페이지
     @GetMapping("/signup")
     public String signupForm() {
@@ -28,12 +36,36 @@ public class AuthController {
     // 회원가입 처리
     @PostMapping("/register")
     @Transactional
-    public String register(@ModelAttribute SignupRequestDto request) {
+    public String register(@ModelAttribute SignupRequestDto request, Model model) {
 
-        // 1. 비밀번호 해싱
+        // 아이디 중복 검사
+        if (memberRepository.findByUsername(request.getUsername()).isPresent()) {
+            model.addAttribute("error", "이미 사용 중인 아이디입니다.");
+            return "signup";
+        }
+
+        // 이메일 중복 검사
+        if (memberRepository.findByEmail(request.getEmail()).isPresent()) {
+            model.addAttribute("error", "이미 사용 중인 이메일입니다.");
+            return "signup";
+        }
+
+        // 비밀번호 확인
+        if (!request.getPassword().equals(request.getPasswordConfirm())) {
+            model.addAttribute("error", "비밀번호가 일치하지 않습니다.");
+            return "signup";
+        }
+
+        // 비밀번호 유효성 검사 (최소 8자, 영문+숫자 포함)
+        if (!request.getPassword().matches("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$")) {
+            model.addAttribute("error", "비밀번호는 최소 8자 이상이며, 숫자와 영문을 포함해야 합니다.");
+            return "signup";
+        }
+
+        // 비밀번호 해싱
         String encodedPassword = passwordEncoder.encode(request.getPassword());
 
-        // 2. Member 엔티티 생성
+        // Member 엔티티 생성
         Member member = new Member();
         member.setUsername(request.getUsername());
         member.setPassword(encodedPassword);
@@ -44,4 +76,6 @@ public class AuthController {
 
         return "redirect:/login";
     }
+
+
 }

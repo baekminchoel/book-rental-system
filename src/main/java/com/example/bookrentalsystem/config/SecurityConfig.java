@@ -50,7 +50,8 @@ public class SecurityConfig {
         // 3. 로그인 설정
         http.formLogin(login -> login
             .loginPage("/login")
-            .defaultSuccessUrl("/")
+            .defaultSuccessUrl("/", true)
+            .failureUrl("/login?error=true")
             .permitAll()
         );
 
