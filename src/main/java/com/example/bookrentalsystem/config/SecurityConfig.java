@@ -42,21 +42,23 @@ public class SecurityConfig {
 
         // 2. 인증/인가 설정
         http.authorizeHttpRequests(auth -> auth
-            .requestMatchers("/signup", "/register", "/css/**", "/js/**").permitAll()
+            .requestMatchers("/admin").hasRole("ADMIN")     // 관리자 페이지
+            .requestMatchers("/signup", "/register", "/css/**", "/js/**", "/").permitAll()
             .anyRequest().authenticated()
         );
 
         // 3. 로그인 설정
         http.formLogin(login -> login
             .loginPage("/login")
-            .defaultSuccessUrl("/")
+            .defaultSuccessUrl("/", true)
+            .failureUrl("/login?error=true")
             .permitAll()
         );
 
         // 4. 로그아웃 설정
         http.logout(logout -> logout
             .logoutUrl("/logout")
-            .logoutSuccessUrl("/login?logout")
+            .logoutSuccessUrl("/")
             .permitAll()
         );
 
@@ -65,6 +67,4 @@ public class SecurityConfig {
 
         return http.build();
     }
-
-
 }
