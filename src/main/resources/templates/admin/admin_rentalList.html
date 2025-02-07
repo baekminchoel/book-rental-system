@@ -21,7 +21,7 @@
 
     <div class="container">
         <div class="row">
-            <div class="col-md-5">
+            <div class="col-md-6">
                 <h4>현재 대여 목록</h4>
                 <table class="table table-striped">
                     <thead>
@@ -38,21 +38,21 @@
                         <td th:text="${rental.borrowedQuantity}">빌린책 수</td>
                         <td th:text="${rental.borrowerEmail}">빌린사람</td>
                         <td>
-                            <form th:action="@{admin/rental/{id}/return (id=${rental.id})}" method="post">
+                            <form th:action="@{/admin/rental/{id}/return (id=${rental.rentalId})}" method="post">
                                 <button type="submit" class="btn btn-danger btn-sm">반납</button>
                             </form>
                         </td>
                     </tr>
-                    <!--
+
                     <tr th:if="${rentalList.size()} ==0">
                         <td colspan="4">현재 대여중인 도서가 없습니다.</td>
                     </tr>
-                    -->
+
                     </tbody>
                 </table>
             </div>
 
-            <div class="col-md-5">
+            <div class="col-md-6">
                 <h4>연체 목록</h4>
                 <table class="table table-striped">
                     <thead>
@@ -73,16 +73,16 @@
                         <td th:text="${#temporals.format(overdue.dueDate, 'yyyy-MM-dd')}">반납 예정일</td>
                         <td th:text="${overdue.overdueDays}">연체일수</td>
                         <td>
-                            <form th:action="@{/admin/rental/overdue/{id}/claer (id=${overdue.id})}" method="post">
+                            <form th:action="@{/admin/rental/overdue/{id}/clear (id=${overdue.rentalId})}" method="post">
                                 <button type="submit" class="btn btn-warning btn-sm">연체 해제</button>
                             </form>
                         </td>
                     </tr>
-                    <!--
+
                     <tr th:if="${overdueList.size()} == 0">
                         <td colspan="6">현재 연체된 도서가 없습니다.</td>
                     </tr>
-                    -->
+
                     </tbody>
                 </table>
             </div>

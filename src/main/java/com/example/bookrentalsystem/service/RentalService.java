@@ -67,6 +67,7 @@ public class RentalService {
                     .borrowerEmail(borrowerEmail)
                     .rentDate(rental.getRentDate())
                     .overdueDays(overdueDays)
+                    .dueDate(rental.getDueDate())
                     .build();
 
             dtoList.add(dto);
@@ -88,7 +89,7 @@ public class RentalService {
         Rental rental = rentalRepository.findById(rentalId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid rental Id: "+ rentalId));
 
-        rental.setRentState(RentState.ACTIVE);
+        rental.setRentState(RentState.RETURNED);
         rentalRepository.save(rental);
     }
 }
