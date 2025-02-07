@@ -1,15 +1,15 @@
 package com.example.bookrentalsystem.controller;
 
 import com.example.bookrentalsystem.dto.MemberDto;
+import com.example.bookrentalsystem.entity.Book;
 import com.example.bookrentalsystem.entity.Role;
+import com.example.bookrentalsystem.service.BookService;
 import com.example.bookrentalsystem.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -20,6 +20,7 @@ import java.util.List;
 public class AdminController {
 
     private final MemberService memberService;
+    private final BookService bookService;
 
     // 관리자 홈
     @GetMapping("/home")
@@ -44,5 +45,27 @@ public class AdminController {
         model.addAttribute("role", role);
 
         return "admin/memberList";
+    }
+
+    //책 등록
+    @PostMapping("/add")
+    public String addBook(@ModelAttribute Book book) {
+        bookService.saveBook(book);
+        return "redirect:/admin/bookList";
+    }
+
+    //책 조회
+    @GetMapping("/bookList")
+    public String showBookList(Model model){
+        model.addAttribute("books", bookService.getAllBooks());
+        model.addAttribute("book", new Book());
+        return "admin/bookList";
+    }
+
+    //책 삭제
+    @PostMapping("/delete")
+    public String deleteBook(@RequestParam Long id){
+        bookService.deleteBook(id);
+        return "redirect:/admin/bookList";
     }
 }

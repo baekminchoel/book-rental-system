@@ -11,7 +11,8 @@ import java.time.LocalDate;
 
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Setter
+@NoArgsConstructor
 public class Book {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
