@@ -68,4 +68,31 @@ public class AdminController {
         bookService.deleteBook(id);
         return "redirect:/admin/bookList";
     }
+
+    // 대여관리
+
+    private final RentalService rentalService;
+
+    @GetMapping("/admin/admin_rentalList")
+    public String admin_rentalList(Model model) {
+        List<BookRentalDto> rentalList = rentalService.getCurrentRentalList();
+        List<BookRentalDto> overdueList = rentalService.getOverdueList();
+
+        model.addAttribute("rentalList", rentalList);
+        model.addAttribute("overdueList", overdueList);
+
+        return "admin/admin_rentalList";
+    }
+
+    @PostMapping("/admin/rental/{id}/return")
+    public String returnBook(@PathVariable("id") Long rentalId){
+        rentalService.returnBook(rentalId);
+        return "redirect:/admin/admin_rentalList";
+    }
+
+    @PostMapping("/admin/rental/overdue/{id}/clear")
+    public String clearOverdue(@PathVariable("id") Long rentalId){
+        rentalService.clearOverdue(rentalId);
+        return "redirect:/admin/admin_rentalList";
+    }
 }

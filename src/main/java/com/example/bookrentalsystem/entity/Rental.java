@@ -9,8 +9,8 @@ import lombok.Setter;
 import java.time.LocalDate;
 
 @Entity
-@Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter @Setter
+@NoArgsConstructor
 public class Rental {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,4 +31,5 @@ public class Rental {
 
     @Enumerated(EnumType.STRING)
     private RentState rentState;    // 대여 상태 (ACTIVE, RETURNED)
+
 }
