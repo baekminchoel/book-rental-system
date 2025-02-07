@@ -2,6 +2,7 @@ package com.example.bookrentalsystem.dto;
 
 import lombok.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter @Setter
 @NoArgsConstructor
@@ -12,11 +13,13 @@ public class BookRentalDto {
 
     private Long rentalId;
     private String bookTitle;
-    private String borrowerEmail;
+    private String borrower;
 
     private int borrowedQuantity;
 
-    private LocalDate rentDate;
-    private LocalDate dueDate;
+    private LocalDateTime rentDateTime;
+    private LocalDateTime dueDateTime;
+    private LocalDateTime returnDateTime;
+
     private int overdueDays;
 }

@@ -1,10 +1,12 @@
 package com.example.bookrentalsystem.controller;
 
+import com.example.bookrentalsystem.dto.BookRentalDto;
 import com.example.bookrentalsystem.dto.MemberDto;
 import com.example.bookrentalsystem.entity.Book;
 import com.example.bookrentalsystem.entity.Role;
 import com.example.bookrentalsystem.service.BookService;
 import com.example.bookrentalsystem.service.MemberService;
+import com.example.bookrentalsystem.service.RentalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -21,6 +23,7 @@ public class AdminController {
 
     private final MemberService memberService;
     private final BookService bookService;
+    private final RentalService rentalService;
 
     // 관리자 홈
     @GetMapping("/home")
@@ -69,30 +72,29 @@ public class AdminController {
         return "redirect:/admin/bookList";
     }
 
-    // 대여관리
-
-    private final RentalService rentalService;
-
-    @GetMapping("/admin/admin_rentalList")
-    public String admin_rentalList(Model model) {
+    // 대여 조회 관리
+    @GetMapping("/rentalList")
+    public String rentalList(Model model) {
         List<BookRentalDto> rentalList = rentalService.getCurrentRentalList();
         List<BookRentalDto> overdueList = rentalService.getOverdueList();
 
         model.addAttribute("rentalList", rentalList);
         model.addAttribute("overdueList", overdueList);
 
-        return "admin/admin_rentalList";
+        return "admin/rentalList";
     }
 
-    @PostMapping("/admin/rental/{id}/return")
+    // 도서 강제 반납(관리자)
+    @PostMapping("/rental/{id}/return")
     public String returnBook(@PathVariable("id") Long rentalId){
         rentalService.returnBook(rentalId);
-        return "redirect:/admin/admin_rentalList";
+        return "redirect:/admin/rentalList";
     }
 
-    @PostMapping("/admin/rental/overdue/{id}/clear")
+    // 연체 도서 강제 반납(관리자)
+    @PostMapping("/rental/overdue/{id}/clear")
     public String clearOverdue(@PathVariable("id") Long rentalId){
         rentalService.clearOverdue(rentalId);
-        return "redirect:/admin/admin_rentalList";
+        return "redirect:/admin/rentalList";
     }
 }

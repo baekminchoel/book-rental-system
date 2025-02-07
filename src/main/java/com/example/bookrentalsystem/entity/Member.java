@@ -3,7 +3,7 @@ package com.example.bookrentalsystem.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter @Setter
@@ -27,6 +27,6 @@ public class Member {
 
     private int penaltyPoint;
 
-    private LocalDate penaltyReleaseDate;
+    private LocalDateTime penaltyReleaseDate;
 
 }

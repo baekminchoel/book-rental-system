@@ -41,7 +41,6 @@ public class MemberService {
             members = memberRepository.findAll();
         }
 
-        // Convert Member entities to MemberDto using builder pattern
         return members.stream()
                 .map(member -> MemberDto.builder()
                         .id(member.getId())
@@ -52,5 +51,20 @@ public class MemberService {
                         .penaltyReleaseDate(member.getPenaltyReleaseDate())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    // 현재 로그인한 회원 정보 조회
+    public MemberDto getMemberProfile(String username) {
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(() ->new IllegalArgumentException("사용자를 찾을 수 없습니다: " + username));
+
+        return MemberDto.builder()
+                .id(member.getId())
+                .username(member.getUsername())
+                .email(member.getEmail())
+                .role(member.getRole())
+                .penaltyPoint(member.getPenaltyPoint())
+                .penaltyReleaseDate(member.getPenaltyReleaseDate())
+                .build();
     }
 }

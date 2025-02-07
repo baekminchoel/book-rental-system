@@ -3,7 +3,7 @@ package com.example.bookrentalsystem.dto;
 import com.example.bookrentalsystem.entity.Role;
 import lombok.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter @Setter
 @AllArgsConstructor
@@ -16,5 +16,5 @@ public class MemberDto {
     private String email;
     private Role role;
     private int penaltyPoint;
-    private LocalDate penaltyReleaseDate;
+    private LocalDateTime penaltyReleaseDate;
 }
