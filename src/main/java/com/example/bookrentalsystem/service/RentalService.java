@@ -1,8 +1,12 @@
 package com.example.bookrentalsystem.service;
 
 import com.example.bookrentalsystem.dto.BookRentalDto;
+import com.example.bookrentalsystem.entity.Book;
+import com.example.bookrentalsystem.entity.Member;
 import com.example.bookrentalsystem.entity.RentState;
 import com.example.bookrentalsystem.entity.Rental;
+import com.example.bookrentalsystem.repository.BookRepository;
+import com.example.bookrentalsystem.repository.MemberRepository;
 import com.example.bookrentalsystem.repository.RentalRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +21,47 @@ import java.util.List;
 public class RentalService {
 
     private final RentalRepository rentalRepository;
+    private final MemberRepository memberRepository;
+    private final BookRepository bookRepository;
+
+    // 도서 대여 기능
+    public void rentalBook(Long bookId, String username) {
+
+        // 이미 대여 중인 책 여부 체크
+        if (isBookAlreadyRented(bookId, username)) {
+            throw new IllegalArgumentException("이미 대여 중인 책입니다.");
+        }
+
+        // 엔티티 조회
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid book ID: " + bookId));
+        Member member = memberRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid username: " + username));
+
+        // 재고 확인
+        if (book.getRecentStock() <= 0) {
+            throw new IllegalArgumentException("No stock available for this book.");
+        }
+
+        // 대여 상태 업데이트
+        Rental rental = Rental.builder()
+                .book(book)
+                .member(member)
+                .rentDateTime(LocalDateTime.now())
+                .dueDateTime(LocalDateTime.now().plusWeeks(1))
+                .rentState(RentState.ACTIVE)
+                .build();
+
+        rentalRepository.save(rental);
+
+        // 재고 감소
+        book.setRecentStock(book.getRecentStock() - 1);
+
+        // 총 빌린 수량 증가(추천 목록)
+        book.setRentedCount(book.getRentedCount() + 1);
+
+        bookRepository.save(book);
+    }
 
     // 현재 대여 책 리스트 가져오기
     public List<BookRentalDto> getCurrentRentalList(){
@@ -27,13 +72,10 @@ public class RentalService {
             String bookTitle = rental.getBook().getTitle();
             String borrower = rental.getMember().getUsername();
 
-            int borrowedQuantity = 1;
-
             BookRentalDto dto = BookRentalDto.builder()
                     .rentalId(rental.getId())
                     .bookTitle(bookTitle)
                     .borrower(borrower)
-                    .borrowedQuantity(borrowedQuantity)
                     .rentDateTime(rental.getRentDateTime())
                     .dueDateTime(rental.getDueDateTime())
                     .build();
@@ -93,5 +135,29 @@ public class RentalService {
         rental.setReturnDateTime(LocalDateTime.now());
 
         rentalRepository.save(rental);
+    }
+
+    // 이미 대여 중인 책이 있는지 확인
+    private boolean isBookAlreadyRented(Long bookId, String username) {
+        List<Rental> rentals = rentalRepository.findByMemberUsername(username);
+
+        for (Rental rental : rentals) {
+            if (rental.getBook().getId().equals(bookId) && rental.getRentState() == RentState.ACTIVE) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // 사용자가 빌린 도서 목록 가져오기
+    public List<Long> getRentedBookIdsByUsername(String username) {
+        List<Rental> rentals = rentalRepository.findByMemberUsernameAndRentState(username, RentState.ACTIVE);
+        List<Long> rentalIds = new ArrayList<>();
+
+        for (Rental rental : rentals) {
+            rentalIds.add(rental.getId());
+        }
+
+        return rentalIds;
     }
 }

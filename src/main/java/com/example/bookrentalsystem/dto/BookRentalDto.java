@@ -12,14 +12,17 @@ import java.time.LocalDateTime;
 public class BookRentalDto {
 
     private Long rentalId;
+    private Long bookId;
     private String bookTitle;
     private String borrower;
 
-    private int borrowedQuantity;
+    private int stock;  // 전체 수량
+    private int recentStock; // 현재 수량
 
     private LocalDateTime rentDateTime;
     private LocalDateTime dueDateTime;
     private LocalDateTime returnDateTime;
 
+    private boolean available;
     private int overdueDays;
 }

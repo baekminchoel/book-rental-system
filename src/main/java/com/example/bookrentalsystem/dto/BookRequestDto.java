@@ -13,9 +13,13 @@ import java.time.LocalDate;
 @NoArgsConstructor
 
 public class BookRequestDto {
+    private Long bookId;
     private String title;
     private String author;
     private LocalDate publicationDate;
     private String publisher;
     private int stock;
+    private int recentStock;
+    private boolean available;
+    private int overdueCount;
 }

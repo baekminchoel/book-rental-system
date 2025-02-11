@@ -15,6 +15,11 @@
         <h2>📚 도서 목록</h2>
     </div>
 
+    <!-- 대여 결과 메시지 표시 -->
+    <div th:if="${message}" class="alert alert-info" role="alert">
+        <span th:text="${message}"></span>
+    </div>
+
     <table class="table table-bordered text-center">
         <thead class="table-dark">
         <tr>
@@ -22,7 +27,7 @@
             <th>저자</th>
             <th>출판일</th>
             <th>출판사</th>
-            <th>개수 (대여/전체)</th>
+            <th>개수 (현재 수량/전체 수량)</th>
             <th>반납 예정일</th>
             <th>대여</th>
         </tr>
@@ -33,12 +38,27 @@
             <td th:text="${book.author}"></td>
             <td th:text="${book.publicationDate}"></td>
             <td th:text="${book.publisher}"></td>
-            <td th:text="${book.rentedCount} + '/' + ${book.stock}"></td>
-            <td th:text="${book.available} ? ${#dates.format(#dates.createNow().plusDays(7), 'yyyy-MM-dd')} : '-'"></td>
+            <td th:text="${book.recentStock} + '/' + ${book.stock}"></td>
+            <td th:text="${returnDate}"></td>
             <td>
-                <button th:disabled="${!book.available}" class="btn btn-primary" th:onclick="rentBook([[${book.id}]], [[${book.available}]])">
-                    대여
-                </button>
+                <!-- 대여 폼 추가 -->
+                <form th:action="@{/rental/rent}" method="post">
+                    <input type="hidden" name="bookId" th:value="${book.bookId}">
+                    <input type="hidden" name="username" th:value="${username}">
+                    <!-- 대여 상태에 따른 버튼 표시 -->
+                    <button type="submit" class="btn btn-primary"
+                            th:disabled="${rentalIds.contains(book.bookId) || book.recentStock <= 0}">
+
+                        <!-- 대여 중인 경우 -->
+                        <span th:if="${rentalIds.contains(book.bookId)}">대여 중</span>
+
+                        <!-- 재고가 없는 경우 -->
+                        <span th:if="${book.recentStock <= 0}">대여 불가</span>
+
+                        <!-- 대여 가능한 경우 -->
+                        <span th:if="${!rentalIds.contains(book.bookId) && book.recentStock > 0}">대여</span>
+                    </button>
+                </form>
             </td>
         </tr>
         </tbody>
@@ -48,29 +68,6 @@
 <div th:replace="fragments/footer :: footer"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-    function rentBook(bookId, isAvailable) {
-        if (!isAvailable) {
-            alert("대여 실패했습니다.");
-            return;
-        }
-
-        fetch(`/rent/${bookId}`, {
-            method: "POST"
-        }).then(response => {
-            if (response.ok) {
-                alert("대여 완료되었습니다.");
-                location.reload(); // 페이지 새로고침
-            } else {
-                alert("대여 실패했습니다.");
-            }
-        }).catch(error => {
-            alert("오류가 발생했습니다.");
-            console.error(error);
-        });
-    }
-</script>
 
 </body>
 </html>

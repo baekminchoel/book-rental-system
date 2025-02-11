@@ -10,4 +10,8 @@ import java.util.List;
 @Repository
 public interface RentalRepository extends JpaRepository<Rental, Long>{
     List<Rental> findByRentState(RentState rentState);
+
+    List<Rental> findByMemberUsername(String username);
+
+    List<Rental> findByMemberUsernameAndRentState(String username, RentState rentState);
 }

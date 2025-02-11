@@ -1,6 +1,7 @@
 package com.example.bookrentalsystem.controller;
 
 import com.example.bookrentalsystem.dto.BookRentalDto;
+import com.example.bookrentalsystem.dto.BookRequestDto;
 import com.example.bookrentalsystem.dto.MemberDto;
 import com.example.bookrentalsystem.entity.Book;
 import com.example.bookrentalsystem.entity.Role;
@@ -60,8 +61,9 @@ public class AdminController {
     //책 조회
     @GetMapping("/bookList")
     public String showBookList(Model model){
-        model.addAttribute("books", bookService.getAllBooks());
-        model.addAttribute("book", new Book());
+        List<BookRequestDto> books = bookService.getAllBooks();
+        model.addAttribute("books", books);
+
         return "admin/bookList";
     }
 
