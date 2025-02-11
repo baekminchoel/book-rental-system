@@ -14,4 +14,14 @@ public class RentalController {
     public String rentalBook() {
         return "/rental/rentalBook";
     }
+
+    @GetMapping("/returnBook")
+    public String returnBook() {
+        return "/rental/returnBook";
+    }
+
+    @GetMapping("/history")
+    public String history() {
+        return "/rental/history";
+    }
 }
