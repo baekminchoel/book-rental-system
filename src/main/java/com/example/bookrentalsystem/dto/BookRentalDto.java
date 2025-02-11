@@ -13,9 +13,10 @@ public class BookRentalDto {
 
     private Long rentalId;
     private String bookTitle;
+    private String bookAuthor;
+    private LocalDate publicationDate;
+    private String publisher;
     private String borrower;
-
-    private int borrowedQuantity;
 
     private LocalDateTime rentDateTime;
     private LocalDateTime dueDateTime;

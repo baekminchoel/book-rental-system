@@ -3,6 +3,7 @@ package com.example.bookrentalsystem.controller;
 import com.example.bookrentalsystem.dto.BookRentalDto;
 import com.example.bookrentalsystem.dto.MemberDto;
 import com.example.bookrentalsystem.entity.Book;
+import com.example.bookrentalsystem.entity.Rental;
 import com.example.bookrentalsystem.entity.Role;
 import com.example.bookrentalsystem.service.BookService;
 import com.example.bookrentalsystem.service.MemberService;
@@ -77,9 +78,12 @@ public class AdminController {
     public String rentalList(Model model) {
         List<BookRentalDto> rentalList = rentalService.getCurrentRentalList();
         List<BookRentalDto> overdueList = rentalService.getOverdueList();
+        List<BookRentalDto> pastRentals = rentalService.getPastRentals();
 
         model.addAttribute("rentalList", rentalList);
         model.addAttribute("overdueList", overdueList);
+        model.addAttribute("pastRentals", pastRentals);
+
 
         return "admin/rentalList";
     }
