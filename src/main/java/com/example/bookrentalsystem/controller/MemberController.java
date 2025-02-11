@@ -1,28 +1,31 @@
 package com.example.bookrentalsystem.controller;
 
+import com.example.bookrentalsystem.dto.MemberDto;
 import com.example.bookrentalsystem.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-@RequestMapping("api/members")
+@Controller
 @RequiredArgsConstructor
+@RequestMapping("/member")
 public class MemberController {
 
     private final MemberService memberService;
 
-    // 아이디 중복 확인 API
-    @GetMapping("/check-username")
-    public boolean checkUsername(@RequestParam String username) {
-        return memberService.isUsername(username);
-    }
+    @GetMapping("/profile")
+    public String memberProfile(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        if (userDetails == null) {
+            return "redirect:/member/login";
+        }
 
-    // 이메일 중복 확인 API
-    @GetMapping("/check-email")
-    public boolean checkEmail(@RequestParam String email) {
-        return memberService.isEmail(email);
+        MemberDto memberDto = memberService.getMemberProfile(userDetails.getUsername());
+
+        model.addAttribute("member", memberDto);
+        return "member/profile";
     }
 }
