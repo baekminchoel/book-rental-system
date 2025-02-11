@@ -12,7 +12,7 @@
 
 <main class="container my-5">
     <div class="text-center mb-4">
-        <h2>📚 대여 목록</h2>
+        <h2>📚 현재 대여 목록</h2>
     </div>
 
     <table class="table table-bordered text-center">
@@ -22,24 +22,44 @@
             <th>저자</th>
             <th>출판일</th>
             <th>출판사</th>
-            <th>개수 (대여/전체)</th>
+            <th>빌린날</th>
             <th>반납 예정일</th>
-            <th>대여</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="book : ${books}">
-            <td th:text="${book.title}"></td>
-            <td th:text="${book.author}"></td>
-            <td th:text="${book.publicationDate}"></td>
-            <td th:text="${book.publisher}"></td>
-            <td th:text="${book.rentedCount} + '/' + ${book.stock}"></td>
-            <td th:text="${book.available} ? ${#dates.format(#dates.createNow().plusDays(7), 'yyyy-MM-dd')} : '-'"></td>
-            <td>
-                <button th:disabled="${!book.available}" class="btn btn-primary" th:onclick="rentBook([[${book.id}]], [[${book.available}]])">
-                    대여
-                </button>
-            </td>
+        <tr th:each="book : ${currentRentals}">
+            <td th:text="${book.book.title}"></td>
+            <td th:text="${book.book.author}"></td>
+            <td th:text="${book.book.publicationDate}"></td>
+            <td th:text="${book.book.publisher}"></td>
+            <td th:text="${#temporals.format(book.rentDateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            <td th:text="${#temporals.format(book.dueDateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="text-center mb-4">
+        <h2>📚 과거 대여 목록</h2>
+    </div>
+    <table class="table table-bordered text-center">
+        <thead class="table-dark">
+        <tr>
+            <th>책 제목</th>
+            <th>저자</th>
+            <th>출판일</th>
+            <th>출판사</th>
+            <th>대여일</th>
+            <th>반납일</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="book : ${pastRentals}">
+            <td th:text="${book.book.title}"></td>
+            <td th:text="${book.book.author}"></td>
+            <td th:text="${book.book.publicationDate}"></td>
+            <td th:text="${book.book.publisher}"></td>
+            <td th:text="${#temporals.format(book.rentDateTime, 'yyyy-mm-dd HH:mm:ss')}"></td>
+            <td th:text="${#temporals.format(book.returnDateTime, 'yyyy-mm-dd HH:mm:ss')}"></td>
         </tr>
         </tbody>
     </table>

@@ -79,8 +79,4 @@ public class RentalController {
         return "/rental/returnBook";
     }
 
-    @GetMapping("/history")
-    public String history() {
-        return "/rental/history";
-    }
 }

@@ -14,4 +14,9 @@ public interface RentalRepository extends JpaRepository<Rental, Long>{
     List<Rental> findByMemberUsername(String username);
 
     List<Rental> findByMemberUsernameAndRentState(String username, RentState rentState);
+
+    // 특정회원 + 특정상태
+    List<Rental> findByMemberIdAndRentState(Long memberId, RentState rentState);
+
+    List<Rental> findByMemberIdAndRentStateIn(Long memberId, List<RentState> states);
 }

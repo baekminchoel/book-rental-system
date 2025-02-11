@@ -20,6 +20,7 @@
             color: #343a40;
             font-weight: 600;
             margin-bottom: 20px;
+            text-align: center;
         }
         .btn-primary {
             background-color: #007bff;
@@ -48,25 +49,33 @@
 
 <div th:replace="fragments/header :: header"></div>
 <main class="container content-container">
-    <div class="container p-4">
-        <div class="row">
+    <div class="row mb-5">
+        <div>
             <!-- 왼쪽: 현재 대여 목록 -->
-            <div class="col-md-6">
+            <div class="col-md-10 mx-auto">
                 <h2>현재 대여 목록</h2>
                 <table class="table table-striped">
                     <thead>
                     <tr>
                         <th>책 제목</th>
-                        <th>빌린 수량</th>
+                        <th>저자</th>
+                        <th>출판일</th>
+                        <th>출판사</th>
                         <th>대여자</th>
+                        <th>대여일</th>
+                        <th>반납 예정일</th>
                         <th>즉시 반납</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr th:each="rental : ${rentalList}">
                         <td th:text="${rental.bookTitle}"></td>
-                        <td th:text="${rental.borrowedQuantity}"></td>
+                        <td th:text="${rental.bookAuthor}"></td>
+                        <td th:text="${#temporals.format(rental.publicationDate, 'yyyy-MM-dd')}"></td>
+                        <td th:text="${rental.publisher}"></td>
                         <td th:text="${rental.borrower}"></td>
+                        <td th:text="${#temporals.format(rental.rentDateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                        <td th:text="${#temporals.format(rental.dueDateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
                         <td>
                             <form th:action="@{/admin/rental/{id}/return (id=${rental.rentalId})}" method="post">
                                 <button type="submit" class="btn btn-danger btn-sm">반납</button>
@@ -82,39 +91,76 @@
                 </table>
             </div>
 
-            <div class="col-md-6">
-                <h2>연체 목록</h2>
-                <table class="table table-striped">
-                    <thead>
-                    <tr>
-                        <th>책 제목</th>
-                        <th>대여자</th>
-                        <th>대여일</th>
-                        <th>반납 예정일</th>
-                        <th>연체 일수</th>
-                        <th>연체 해제</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="overdue : ${overdueList}">
-                        <td th:text="${overdue.bookTitle}"></td>
-                        <td th:text="${overdue.borrower}"></td>
-                        <td th:text="${#temporals.format(overdue.rentDateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
-                        <td th:text="${#temporals.format(overdue.dueDateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
-                        <td th:text="${overdue.overdueDays}">연체일수</td>
-                        <td>
-                            <form th:action="@{/admin/rental/overdue/{id}/clear (id=${overdue.rentalId})}" method="post">
-                                <button type="submit" class="btn btn-warning btn-sm">연체 해제</button>
-                            </form>
-                        </td>
-                    </tr>
-
-                    <tr th:if="${overdueList.size()} == 0">
-                        <td colspan="6">현재 연체된 도서가 없습니다.</td>
-                    </tr>
-
-                    </tbody>
-                </table>
+            <div class="row mb-5">
+                <div class="col-md-10 mx-auto">
+                    <h2>연체 목록</h2>
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>책 제목</th>
+                            <th>저자</th>
+                            <th>출판일</th>
+                            <th>출판사</th>
+                            <th>대여자</th>
+                            <th>대여일</th>
+                            <th>반납 예정일</th>
+                            <th>연체 일수</th>
+                            <th>연체 해제</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="overdue : ${overdueList}">
+                            <td th:text="${overdue.bookTitle}"></td>
+                            <td th:text="${overdue.bookAuthor}"></td>
+                            <td th:text="${#temporals.format(overdue.publicationDate, 'yyyy-MM-dd')}"></td>
+                            <td th:text="${overdue.publisher}"></td>
+                            <td th:text="${overdue.borrower}"></td>
+                            <td th:text="${#temporals.format(overdue.rentDateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                            <td th:text="${#temporals.format(overdue.dueDateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                            <td th:text="${overdue.overdueDays}">연체일수</td>
+                            <td>
+                                <form th:action="@{/admin/rental/overdue/{id}/clear (id=${overdue.rentalId})}" method="post">
+                                    <button type="submit" class="btn btn-warning btn-sm">연체 해제</button>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr th:if="${overdueList.size()} == 0">
+                            <td colspan="6">현재 연체된 도서가 없습니다.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row mb-5">
+                <div class="col-md-10 mx-auto">
+                    <h2>과거 대여목록</h2>
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>책 제목</th>
+                            <th>저자</th>
+                            <th>출판일</th>
+                            <th>출판사</th>
+                            <th>대여자</th>
+                            <th>대여일</th>
+                            <th>반납날</th>
+                            <th>연체 일수</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="return : ${pastRentals}">
+                            <td th:text="${return.bookTitle}"></td>
+                            <td th:text="${return.bookAuthor}"></td>
+                            <td th:text="${#temporals.format(return.publicationDate, 'yyyy-MM-dd')}"></td>
+                            <td th:text="${return.publisher}"></td>
+                            <td th:text="${return.borrower}"></td>
+                            <td th:text="${#temporals.format(return.rentDateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                            <td th:text="${#temporals.format(return.returnDateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                            <td th:text="${return.overdueDays}">연체일수</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>

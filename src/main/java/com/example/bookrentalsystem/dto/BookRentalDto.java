@@ -13,7 +13,11 @@ public class BookRentalDto {
 
     private Long rentalId;
     private Long bookId;
+
     private String bookTitle;
+    private String bookAuthor;
+    private LocalDate publicationDate;
+    private String publisher;
     private String borrower;
 
     private int stock;  // 전체 수량
