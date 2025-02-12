@@ -64,7 +64,6 @@ public class RentalService {
 
         bookRepository.save(book);
     }
-    private final BookRepository bookRepository;
 
     // 현재 대여 책 리스트 가져오기
     public List<BookRentalDto> getCurrentRentalList(){
@@ -187,10 +186,11 @@ public class RentalService {
 
         //책 채고 복원
         Book book = rental.getBook();
-        book.setStock(book.getStock() + 1);
-        if(book.getStock() > 0){
+        book.setRecentStock(book.getRecentStock() + 1);
+        if(book.getRecentStock() > 0){
             book.setAvailable(true);
         }
+
         bookRepository.save(book);
 
         rentalRepository.save(rental);
@@ -203,6 +203,15 @@ public class RentalService {
 
         rental.setRentState(RentState.RETURNED);
         rental.setReturnDateTime(LocalDateTime.now());
+
+        //책 채고 복원
+        Book book = rental.getBook();
+        book.setRecentStock(book.getRecentStock() + 1);
+        if(book.getRecentStock() > 0){
+            book.setAvailable(true);
+        }
+
+        bookRepository.save(book);
 
         rentalRepository.save(rental);
     }

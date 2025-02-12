@@ -58,8 +58,8 @@
             <td th:text="${book.book.author}"></td>
             <td th:text="${book.book.publicationDate}"></td>
             <td th:text="${book.book.publisher}"></td>
-            <td th:text="${#temporals.format(book.rentDateTime, 'yyyy-mm-dd HH:mm:ss')}"></td>
-            <td th:text="${#temporals.format(book.returnDateTime, 'yyyy-mm-dd HH:mm:ss')}"></td>
+            <td th:text="${#temporals.format(book.rentDateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            <td th:text="${#temporals.format(book.returnDateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
         </tr>
         </tbody>
     </table>
