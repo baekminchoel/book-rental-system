@@ -11,6 +11,7 @@ import com.example.bookrentalsystem.repository.MemberRepository;
 import com.example.bookrentalsystem.repository.BookRepository;
 import com.example.bookrentalsystem.repository.RentalRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -67,113 +68,57 @@ public class RentalService {
 
     // 현재 대여 책 리스트 가져오기
     public List<BookRentalDto> getCurrentRentalList(){
-        List<Rental> activeRentals = rentalRepository.findByRentState(RentState.ACTIVE);
-        List<BookRentalDto> dtoList = new ArrayList<>();
+        List<Rental> activeRentals = rentalRepository.findByRentState(RentState.ACTIVE,
+                Sort.by(Sort.Direction.DESC,"rentDateTime"));
 
-        for(Rental rental : activeRentals){
-            String bookTitle = rental.getBook().getTitle();
-            String borrower = rental.getMember().getUsername();
-
-            String bookAuthor = rental.getBook().getAuthor();
-            String publisher = rental.getBook().getPublisher();
-
-            BookRentalDto dto = BookRentalDto.builder()
-                    .rentalId(rental.getId())
-                    .bookTitle(bookTitle)
-                    .bookAuthor(bookAuthor)
-                    .publicationDate(rental.getBook().getPublicationDate())
-                    .publisher(publisher)
-                    .borrower(borrower)
-                    .rentDateTime(rental.getRentDateTime())
-                    .dueDateTime(rental.getDueDateTime())
-                    .build();
-
-            dtoList.add(dto);
-        }
-        return dtoList;
+        return convertToDtoList(activeRentals);
     }
 
     // 연체 목록 가져오기
     public List<BookRentalDto> getOverdueList(){
-        List<Rental> overdueRentals = rentalRepository.findByRentState(RentState.OVERDUE);
-        List<BookRentalDto> dtoList = new ArrayList<>();
+        List<Rental> overdueRentals = rentalRepository.findByRentState(RentState.OVERDUE,
+                Sort.by(Sort.Direction.DESC, "dueDateTime"));
 
-        for (Rental rental : overdueRentals){
-            String bookTitle = rental.getBook().getTitle();
-            String borrower = rental.getMember().getUsername();
-            String bookAuthor = rental.getBook().getAuthor();
-            String publisher = rental.getBook().getPublisher();
-
-            LocalDateTime due = rental.getDueDateTime();
-            int overdueDays = 0;
-
-            if (due != null && due.isBefore(LocalDateTime.now())){
-                overdueDays = (int) ChronoUnit.DAYS.between(due, LocalDateTime.now());
-            }
-
-            BookRentalDto dto = BookRentalDto.builder()
-                    .rentalId(rental.getId())
-                    .bookTitle(bookTitle)
-                    .bookAuthor(bookAuthor)
-                    .publicationDate(rental.getBook().getPublicationDate())
-                    .publisher(publisher)
-                    .borrower(borrower)
-                    .rentDateTime(rental.getRentDateTime())
-                    .overdueDays(overdueDays)
-                    .dueDateTime(rental.getDueDateTime())
-                    .build();
-
-            dtoList.add(dto);
-        }
-        return dtoList;
+        return convertToDtoList(overdueRentals);
     }
 
     // 과거 대여 목록 가져오기
     public List<BookRentalDto> getPastRentals(){
-        List<Rental> returnedRentals = rentalRepository.findByRentState(RentState.RETURNED);
+        List<Rental> returnedRentals = rentalRepository.findByRentState(RentState.RETURNED,
+                Sort.by(Sort.Direction.DESC, "returnDateTime"));
 
+        return convertToDtoList(returnedRentals);
+    }
+
+    private List<BookRentalDto> convertToDtoList(List<Rental> rentals) {
         List<BookRentalDto> dtoList = new ArrayList<>();
-        for(Rental rental: returnedRentals){
-            String bookTitle = rental.getBook().getTitle();
-            String borrower = rental.getMember().getUsername();
-            String bookAuthor = rental.getBook().getAuthor();
-            String publisher = rental.getBook().getPublisher();
 
-            LocalDateTime rentDateTime = rental.getRentDateTime();
-            LocalDateTime returnDateTime = rental.getReturnDateTime();
-
-            LocalDateTime due = rental.getDueDateTime();
-            int overdueDays = 0;
-
-            if (due != null && due.isBefore(LocalDateTime.now())){
-                overdueDays = (int) ChronoUnit.DAYS.between(due, LocalDateTime.now());
-            }
-
-
+        for (Rental rental : rentals) {
             BookRentalDto dto = BookRentalDto.builder()
                     .rentalId(rental.getId())
-                    .bookTitle(bookTitle)
-                    .bookAuthor(bookAuthor)
+                    .bookTitle(rental.getBook().getTitle())
+                    .bookAuthor(rental.getBook().getAuthor())
                     .publicationDate(rental.getBook().getPublicationDate())
-                    .publisher(publisher)
-                    .borrower(borrower)
-                    .rentDateTime(rentDateTime)
-                    .returnDateTime(returnDateTime)
-                    .overdueDays(overdueDays)
+                    .publisher(rental.getBook().getPublisher())
+                    .borrower(rental.getMember().getUsername())
+                    .rentDateTime(rental.getRentDateTime())
+                    .dueDateTime(rental.getDueDateTime())
+                    .returnDateTime(rental.getReturnDateTime())
+                    .overdueDays(getOverdueDays(rental.getDueDateTime()))
                     .build();
+
             dtoList.add(dto);
         }
+
         return dtoList;
     }
 
-    public List<Rental> findCurrentRentalsByMember(Long memberId){
-        return rentalRepository.findByMemberIdAndRentStateIn(memberId,
-                List.of(RentState.ACTIVE, RentState.OVERDUE)
-        );
-    }
+    private int getOverdueDays(LocalDateTime dueDate) {
+        if (dueDate != null && dueDate.isBefore(LocalDateTime.now())) {
+            return (int) ChronoUnit.DAYS.between(dueDate, LocalDateTime.now());
+        }
 
-    public  List<Rental> findPastRentalsByMember(Long memberId){
-        return rentalRepository.findByMemberIdAndRentState(memberId, RentState.RETURNED);
+        return 0;
     }
 
     // 도서 강제 반납
@@ -231,10 +176,11 @@ public class RentalService {
     // 사용자가 빌린 도서 목록 가져오기
     public List<Long> getRentedBookIdsByUsername(String username) {
         List<Rental> rentals = rentalRepository.findByMemberUsernameAndRentState(username, RentState.ACTIVE);
+
         List<Long> rentalIds = new ArrayList<>();
 
         for (Rental rental : rentals) {
-            rentalIds.add(rental.getId());
+            rentalIds.add(rental.getBook().getId());
         }
 
         return rentalIds;

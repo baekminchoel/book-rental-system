@@ -1,16 +1,18 @@
 package com.example.bookrentalsystem.controller;
 
+import com.example.bookrentalsystem.dto.BookRentalDto;
 import com.example.bookrentalsystem.dto.BookRequestDto;
 import com.example.bookrentalsystem.entity.Book;
+import com.example.bookrentalsystem.entity.Member;
+import com.example.bookrentalsystem.entity.Rental;
 import com.example.bookrentalsystem.service.BookService;
+import com.example.bookrentalsystem.service.MemberService;
 import com.example.bookrentalsystem.service.RentalService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
@@ -25,6 +27,7 @@ public class RentalController {
 
     private final RentalService rentalService;
     private final BookService bookService;
+    private final MemberService memberService;
 
     @GetMapping("/rentalBook")
     public String rentBook(Model model, Principal principal) {
@@ -74,9 +77,33 @@ public class RentalController {
         return "redirect:/rental/rentalBook";
     }
 
-    @GetMapping("/returnBook")
-    public String returnBook() {
-        return "/rental/returnBook";
+    @GetMapping("/history")
+    public String rentalHistory(Model model) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        Member member = memberService.findByUsername(username)
+                .orElseThrow(()-> new IllegalStateException("No member with username=" + username));
+        Long memberId = member.getId();
+
+        List<BookRentalDto> currentRentals = rentalService.getCurrentRentalList();
+        List<BookRentalDto> pastRentals = rentalService.getPastRentals();
+
+        model.addAttribute("currentRentals", currentRentals);
+        model.addAttribute("pastRentals", pastRentals);
+
+        return "rental/history";
     }
 
+    @PostMapping("/{id}/return")
+    public String returnBook(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+
+        try {
+            rentalService.returnBook(id);
+            redirectAttributes.addFlashAttribute("message", "책이 성공적으로 반납되었습니다.");
+        } catch (IllegalArgumentException e) {
+            redirectAttributes.addFlashAttribute("message", "책 반납에 실패하였습니다.");
+        }
+
+        return "redirect:/rental/history";
+    }
 }

@@ -22,18 +22,25 @@
             <th>저자</th>
             <th>출판일</th>
             <th>출판사</th>
-            <th>빌린날</th>
+            <th>대여일</th>
             <th>반납 예정일</th>
+            <th>반납</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="book : ${currentRentals}">
-            <td th:text="${book.book.title}"></td>
-            <td th:text="${book.book.author}"></td>
-            <td th:text="${book.book.publicationDate}"></td>
-            <td th:text="${book.book.publisher}"></td>
-            <td th:text="${#temporals.format(book.rentDateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
-            <td th:text="${#temporals.format(book.dueDateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+        <tr th:each="rental : ${currentRentals}">
+            <td th:text="${rental.bookTitle}"></td>
+            <td th:text="${rental.bookAuthor}"></td>
+            <td th:text="${rental.publicationDate}"></td>
+            <td th:text="${rental.publisher}"></td>
+            <td th:text="${#temporals.format(rental.rentDateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            <td th:text="${#temporals.format(rental.dueDateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            <td>
+                <!-- 반납 버튼 -->
+                <form th:action="@{/rental/{id}/return (id=${rental.rentalId})}" method="post">
+                    <button type="submit" class="btn btn-danger">반납</button>
+                </form>
+            </td>
         </tr>
         </tbody>
     </table>
@@ -53,13 +60,13 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="book : ${pastRentals}">
-            <td th:text="${book.book.title}"></td>
-            <td th:text="${book.book.author}"></td>
-            <td th:text="${book.book.publicationDate}"></td>
-            <td th:text="${book.book.publisher}"></td>
-            <td th:text="${#temporals.format(book.rentDateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
-            <td th:text="${#temporals.format(book.returnDateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+        <tr th:each="rental : ${pastRentals}">
+            <td th:text="${rental.bookTitle}"></td>
+            <td th:text="${rental.bookAuthor}"></td>
+            <td th:text="${rental.publicationDate}"></td>
+            <td th:text="${rental.publisher}"></td>
+            <td th:text="${#temporals.format(rental.rentDateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+            <td th:text="${#temporals.format(rental.returnDateTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
         </tr>
         </tbody>
     </table>

@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,6 +25,10 @@ public class MemberService {
     // 이메일 중복 확인
     public boolean isEmail(String email) {
         return memberRepository.findByEmail(email).isPresent();
+    }
+
+    public Optional<Member> findByUsername(String username) {
+        return memberRepository.findByUsername(username);
     }
 
     // 필터링 검색 로직
