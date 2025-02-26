@@ -22,4 +22,5 @@ public class BookRequestDto {
     private int recentStock;
     private boolean available;
     private int overdueCount;
+    private int rentedCount;
 }

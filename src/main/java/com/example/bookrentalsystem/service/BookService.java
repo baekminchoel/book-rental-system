@@ -39,7 +39,8 @@ public class BookService {
                         book.getStock(),
                         book.getRecentStock(),
                         book.isAvailable(),
-                        book.getOverdueCount()
+                        book.getOverdueCount(),
+                        book.getRentedCount()
                 ))
                 .collect(Collectors.toList());
     }
@@ -47,6 +48,27 @@ public class BookService {
     //책 삭제 기능
     public void deleteBook(long id){
         bookRepository.deleteById(id);
+    }
+
+    //인기 도서 조회 기능
+    public List<BookRequestDto> getTop10PopularBooks() {
+        List<Book> popularBooks = bookRepository.findTop10ByOrderByRentedCountDesc();
+
+        return popularBooks.stream()
+                .filter(book -> book.getRentedCount() > 0)
+                .map(book -> new BookRequestDto(
+                        book.getId(),
+                        book.getTitle(),
+                        book.getAuthor(),
+                        book.getPublicationDate(),
+                        book.getPublisher(),
+                        book.getStock(),
+                        book.getRecentStock(),
+                        book.isAvailable(),
+                        book.getOverdueCount(),
+                        book.getRentedCount()
+                ))
+                .collect(Collectors.toList());
     }
 
 }

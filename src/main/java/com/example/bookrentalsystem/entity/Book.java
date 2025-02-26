@@ -32,7 +32,7 @@ public class Book {
 
     private int overdueCount;   // 현재 연체된 도서 수
 
-    public Book(String title, String author, LocalDate publicationDate, String publisher, int stock) {
+    public Book(String title, String author, LocalDate publicationDate, String publisher, int stock, int rentedCount) {
         this.title = title;
         this.author = author;
         this.publicationDate = publicationDate;
@@ -40,6 +40,7 @@ public class Book {
         this.stock = stock;
         this.recentStock = stock; // stock과 동일하게 설정
         this.available = stock > 0;
+        this.rentedCount = rentedCount;
     }
 
     // persist 되기 전에 recentStock을 설정하는 방법
