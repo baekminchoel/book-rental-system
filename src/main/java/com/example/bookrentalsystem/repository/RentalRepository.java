@@ -1,5 +1,6 @@
 package com.example.bookrentalsystem.repository;
 
+import com.example.bookrentalsystem.entity.Member;
 import com.example.bookrentalsystem.entity.RentState;
 import com.example.bookrentalsystem.entity.Rental;
 import org.springframework.data.domain.Sort;
@@ -16,8 +17,7 @@ public interface RentalRepository extends JpaRepository<Rental, Long>{
 
     List<Rental> findByMemberUsernameAndRentState(String username, RentState rentState);
 
-    // 특정회원 + 특정상태
-    List<Rental> findByMemberIdAndRentState(Long memberId, RentState rentState, Sort sort);
+    List<Rental> findByMemberAndRentState(Member member, RentState rentState, Sort sort);
 
-    List<Rental> findByMemberIdAndRentStateIn(Long memberId, List<RentState> states, Sort sort);
+    List<Rental> findByMemberAndRentStateIn(Long memberId, List<RentState> states, Sort sort);
 }

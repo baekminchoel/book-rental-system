@@ -29,4 +29,22 @@ public class Member {
 
     private LocalDateTime penaltyReleaseDate;
 
+    // 패널티 점수 추가
+    public void addPenaltyPoint(int point) {
+        this.penaltyPoint += point;
+
+        if (this.penaltyPoint > 0) {
+            this.role = Role.OVERDUE;
+        }
+    }
+
+    // 반납 후 패널티 점수 차감
+    public void reducePenaltyPoint(int point) {
+        this.penaltyPoint = Math.max(0, this.penaltyPoint - point);
+
+        if (this.penaltyPoint == 0) {
+            this.role = Role.USER;
+        }
+    }
+
 }

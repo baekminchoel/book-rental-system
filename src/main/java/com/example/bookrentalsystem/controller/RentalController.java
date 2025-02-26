@@ -5,6 +5,7 @@ import com.example.bookrentalsystem.dto.BookRequestDto;
 import com.example.bookrentalsystem.entity.Book;
 import com.example.bookrentalsystem.entity.Member;
 import com.example.bookrentalsystem.entity.Rental;
+import com.example.bookrentalsystem.entity.Role;
 import com.example.bookrentalsystem.service.BookService;
 import com.example.bookrentalsystem.service.MemberService;
 import com.example.bookrentalsystem.service.RentalService;
@@ -68,6 +69,21 @@ public class RentalController {
         Book book = bookService.getBookById(bookId);
 
         if (book != null && book.isAvailable()) {
+
+            // 대여 전 연체 체크 및 패널티 적용
+            rentalService.checkOverdue();
+
+            // 연체자 여부 체크
+            Member member = memberService.findByUsername(username)
+                    .orElseThrow(() -> new IllegalStateException("No member with username=" + username));
+
+            if (member.getRole() == Role.OVERDUE) {
+                redirectAttributes.addFlashAttribute("message", "연체로 인해 대여가 제한되었습니다.");
+                return "redirect:/rental/rentalBook";
+            }
+
+
+            // 대여 처리
             rentalService.rentalBook(bookId, username);
             redirectAttributes.addFlashAttribute("message", "대여 완료되었습니다.");
         } else {
@@ -78,15 +94,17 @@ public class RentalController {
     }
 
     @GetMapping("/history")
-    public String rentalHistory(Model model) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    public String rentalHistory(Model model, Principal principal) {
+
+        // 현재 로그인한 사용자 이름
+        String username = principal.getName();
 
         Member member = memberService.findByUsername(username)
-                .orElseThrow(()-> new IllegalStateException("No member with username=" + username));
+                .orElseThrow(() -> new IllegalStateException("No member with username=" + username));
         Long memberId = member.getId();
 
-        List<BookRentalDto> currentRentals = rentalService.getCurrentRentalList();
-        List<BookRentalDto> pastRentals = rentalService.getPastRentals();
+        List<BookRentalDto> currentRentals = rentalService.getCurrentRentalList(username);
+        List<BookRentalDto> pastRentals = rentalService.getPastRentals(username);
 
         model.addAttribute("currentRentals", currentRentals);
         model.addAttribute("pastRentals", pastRentals);
@@ -98,7 +116,9 @@ public class RentalController {
     public String returnBook(@PathVariable Long id, RedirectAttributes redirectAttributes) {
 
         try {
-            rentalService.returnBook(id);
+            // 연체 여부 체크 및 반납 처리
+            rentalService.returnOrClearOverdueBook(id);
+
             redirectAttributes.addFlashAttribute("message", "책이 성공적으로 반납되었습니다.");
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("message", "책 반납에 실패하였습니다.");
