@@ -94,7 +94,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="book : ${admin_bookList}">
+                    <tr th:each="book : ${books}">
                         <td th:text="${book.title}"></td>
                         <td th:text="${book.author}"></td>
                         <td th:text="${book.publicationDate}"></td>
@@ -102,7 +102,7 @@
                         <td th:text="${book.stock}"></td>
                         <td>
                             <form th:action="@{/admin/delete}" method="post">
-                                <input type="hidden" name="id" th:value="${book.id}">
+                                <input type="hidden" name="id" th:value="${book.bookId}">
                                 <button type="submit" class="btn btn-danger btn-sm">삭제</button>
                             </form>
                         </td>

@@ -8,7 +8,6 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -42,12 +41,18 @@ public class SecurityConfig {
 
         // 2. 인증/인가 설정
         http.authorizeHttpRequests(auth -> auth
-            .requestMatchers("/admin").hasRole("ADMIN")     // 관리자 페이지
+            .requestMatchers("/admin/**").hasRole("ADMIN")     // 관리자 페이지
             .requestMatchers("/member/**", "/css/**", "/js/**", "/").permitAll()
             .anyRequest().authenticated()
         );
 
-        // 3. 로그인 설정
+        // 3. 접근 거부 처리: 관리자 권한이 없을 경우 홈으로 리다이렉트
+        http.exceptionHandling(exceptions -> exceptions
+                .accessDeniedHandler((request, response, accessDeniedException) ->
+                        response.sendRedirect("/")) //
+        );
+
+        // 4. 로그인 설정
         http.formLogin(login -> login
             .loginPage("/member/login")
             .defaultSuccessUrl("/", true)
@@ -55,14 +60,14 @@ public class SecurityConfig {
             .permitAll()
         );
 
-        // 4. 로그아웃 설정
+        // 5. 로그아웃 설정
         http.logout(logout -> logout
             .logoutUrl("/member/logout")
             .logoutSuccessUrl("/")
             .permitAll()
         );
 
-        // 5. AuthenticationProvider 등록
+        // 6. AuthenticationProvider 등록
         http.authenticationProvider(authenticationProvider());
 
         return http.build();

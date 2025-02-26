@@ -1,25 +1,24 @@
 package com.example.bookrentalsystem.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
-@Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Rental {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "rental_id")
     private Long id;
 
-    private LocalDate rentDate;
-    private LocalDate dueDate;
-    private LocalDate returnDate;
+    private LocalDateTime rentDateTime;
+    private LocalDateTime dueDateTime;
+    private LocalDateTime returnDateTime;
 
     @ManyToOne
     @JoinColumn(name = "member_id", nullable = false)
@@ -30,5 +29,6 @@ public class Rental {
     private Book book;
 
     @Enumerated(EnumType.STRING)
-    private RentState rentState;    // 대여 상태 (ACTIVE, RETURNED)
+    private RentState rentState;    // 대여 상태 (ACTIVE, RETURNED, OVERDUE)
+
 }
